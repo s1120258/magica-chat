@@ -136,6 +136,22 @@ gcloud projects add-iam-policy-binding magicachat-494008 \
 
 ---
 
+## Cloud Run SA への権限付与
+
+Cloud Run のランタイムサービスアカウント（`{PROJECT_NUMBER}-compute@developer.gserviceaccount.com`）に、Secret Manager の読み取り権限が必要。これがないと `--set-secrets` で注入するシークレットが環境変数として反映されず、`DATABASE_URL` 等が未定義になる。
+
+| ロール                               | 用途                                       |
+| ------------------------------------ | ------------------------------------------ |
+| `roles/secretmanager.secretAccessor` | Secret Manager からのシークレット読み取り  |
+
+```bash
+gcloud projects add-iam-policy-binding magicachat-494008 \
+  --member="serviceAccount:465868710935-compute@developer.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+```
+
+---
+
 ## Cloud Build — GitHub 接続とトリガー
 
 ### GitHub 接続
