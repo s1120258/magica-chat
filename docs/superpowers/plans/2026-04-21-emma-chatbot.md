@@ -13,7 +13,7 @@
 ## File Map
 
 ```
-simple-ai-chatbot/
+magica-chat/
 ├── app/
 │   ├── api/
 │   │   └── [[...route]]/
@@ -59,6 +59,7 @@ simple-ai-chatbot/
 ## Task 1: Project Initialization
 
 **Files:**
+
 - Create: `package.json`
 - Create: `.env.local`
 - Create: `tsconfig.json`
@@ -110,27 +111,27 @@ Generate `AUTH_SECRET` with: `openssl rand -base64 32`
 Create `vitest.config.ts`:
 
 ```typescript
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./vitest.setup.ts"],
     globals: true,
   },
   resolve: {
-    alias: { '@': path.resolve(__dirname, '.') },
+    alias: { "@": path.resolve(__dirname, ".") },
   },
-})
+});
 ```
 
 Create `vitest.setup.ts`:
 
 ```typescript
-import '@testing-library/jest-dom'
+import "@testing-library/jest-dom";
 ```
 
 - [ ] **Step 5: Add test script to package.json**
@@ -154,6 +155,7 @@ git commit -m "chore: initialize Next.js project with dependencies"
 ## Task 2: Prisma Schema + DB Client
 
 **Files:**
+
 - Create: `prisma/schema.prisma`
 - Create: `lib/db.ts`
 
@@ -162,19 +164,19 @@ git commit -m "chore: initialize Next.js project with dependencies"
 Create `lib/__tests__/db.test.ts`:
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi } from "vitest";
 
-vi.mock('@prisma/client', () => {
-  const PrismaClient = vi.fn(() => ({ $connect: vi.fn() }))
-  return { PrismaClient }
-})
+vi.mock("@prisma/client", () => {
+  const PrismaClient = vi.fn(() => ({ $connect: vi.fn() }));
+  return { PrismaClient };
+});
 
-describe('db singleton', () => {
-  it('exports a PrismaClient instance', async () => {
-    const { db } = await import('../db')
-    expect(db).toBeDefined()
-  })
-})
+describe("db singleton", () => {
+  it("exports a PrismaClient instance", async () => {
+    const { db } = await import("../db");
+    expect(db).toBeDefined();
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -239,13 +241,13 @@ Expected: `✔ Generated Prisma Client`
 Create `lib/db.ts`:
 
 ```typescript
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-export const db = globalForPrisma.prisma ?? new PrismaClient()
+export const db = globalForPrisma.prisma ?? new PrismaClient();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
 ```
 
 - [ ] **Step 7: Run test to verify it passes**
@@ -268,6 +270,7 @@ git commit -m "feat: add Prisma schema and db singleton for MongoDB"
 ## Task 3: Auth.js Configuration
 
 **Files:**
+
 - Create: `lib/auth.ts`
 - Create: `middleware.ts`
 - Create: `app/auth/[...nextauth]/route.ts`
@@ -277,29 +280,37 @@ git commit -m "feat: add Prisma schema and db singleton for MongoDB"
 Create `lib/__tests__/auth.test.ts`:
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi } from "vitest";
 
-vi.mock('@prisma/client', () => ({
+vi.mock("@prisma/client", () => ({
   PrismaClient: vi.fn(() => ({
-    user: { upsert: vi.fn().mockResolvedValue({ id: 'user-1' }) },
+    user: { upsert: vi.fn().mockResolvedValue({ id: "user-1" }) },
   })),
-}))
+}));
 
-vi.mock('next-auth', () => ({
-  default: vi.fn((config) => ({ config, handlers: {}, auth: vi.fn(), signIn: vi.fn(), signOut: vi.fn() })),
-}))
+vi.mock("next-auth", () => ({
+  default: vi.fn((config) => ({
+    config,
+    handlers: {},
+    auth: vi.fn(),
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+  })),
+}));
 
-vi.mock('next-auth/providers/google', () => ({ default: vi.fn(() => ({ id: 'google' })) }))
+vi.mock("next-auth/providers/google", () => ({
+  default: vi.fn(() => ({ id: "google" })),
+}));
 
-describe('auth config', () => {
-  it('exports handlers, auth, signIn, signOut', async () => {
-    const mod = await import('../auth')
-    expect(mod.handlers).toBeDefined()
-    expect(mod.auth).toBeDefined()
-    expect(mod.signIn).toBeDefined()
-    expect(mod.signOut).toBeDefined()
-  })
-})
+describe("auth config", () => {
+  it("exports handlers, auth, signIn, signOut", async () => {
+    const mod = await import("../auth");
+    expect(mod.handlers).toBeDefined();
+    expect(mod.auth).toBeDefined();
+    expect(mod.signIn).toBeDefined();
+    expect(mod.signOut).toBeDefined();
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -315,36 +326,42 @@ Expected: FAIL — `Cannot find module '../auth'`
 Create `lib/auth.ts`:
 
 ```typescript
-import NextAuth from 'next-auth'
-import Google from 'next-auth/providers/google'
-import { db } from '@/lib/db'
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+import { db } from "@/lib/db";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
-  session: { strategy: 'jwt' },
+  session: { strategy: "jwt" },
   callbacks: {
     async signIn({ user }) {
-      if (!user.email) return false
+      if (!user.email) return false;
       await db.user.upsert({
         where: { email: user.email },
-        update: { name: user.name ?? '', image: user.image ?? '' },
-        create: { email: user.email, name: user.name ?? '', image: user.image ?? '' },
-      })
-      return true
+        update: { name: user.name ?? "", image: user.image ?? "" },
+        create: {
+          email: user.email,
+          name: user.name ?? "",
+          image: user.image ?? "",
+        },
+      });
+      return true;
     },
     async jwt({ token, user }) {
       if (user?.email) {
-        const dbUser = await db.user.findUnique({ where: { email: user.email } })
-        if (dbUser) token.userId = dbUser.id
+        const dbUser = await db.user.findUnique({
+          where: { email: user.email },
+        });
+        if (dbUser) token.userId = dbUser.id;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
-      if (token.userId) session.user.id = token.userId as string
-      return session
+      if (token.userId) session.user.id = token.userId as string;
+      return session;
     },
   },
-})
+});
 ```
 
 - [ ] **Step 4: Create Auth.js route handler**
@@ -352,9 +369,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 Create `app/auth/[...nextauth]/route.ts`:
 
 ```typescript
-import { handlers } from '@/lib/auth'
+import { handlers } from "@/lib/auth";
 
-export const { GET, POST } = handlers
+export const { GET, POST } = handlers;
 ```
 
 - [ ] **Step 5: Create middleware for route protection**
@@ -362,18 +379,18 @@ export const { GET, POST } = handlers
 Create `middleware.ts` at project root:
 
 ```typescript
-import { auth } from '@/lib/auth'
-import { NextResponse } from 'next/server'
+import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
 
 export default auth((req) => {
-  if (!req.auth && req.nextUrl.pathname === '/chat') {
-    return NextResponse.redirect(new URL('/', req.url))
+  if (!req.auth && req.nextUrl.pathname === "/chat") {
+    return NextResponse.redirect(new URL("/", req.url));
   }
-})
+});
 
 export const config = {
-  matcher: ['/chat'],
-}
+  matcher: ["/chat"],
+};
 ```
 
 - [ ] **Step 6: Extend next-auth types**
@@ -381,11 +398,11 @@ export const config = {
 Create `types/next-auth.d.ts`:
 
 ```typescript
-import { DefaultSession } from 'next-auth'
+import { DefaultSession } from "next-auth";
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface Session {
-    user: { id: string } & DefaultSession['user']
+    user: { id: string } & DefaultSession["user"];
   }
 }
 ```
@@ -410,6 +427,7 @@ git commit -m "feat: add Auth.js v5 with Google OAuth and JWT sessions"
 ## Task 4: Emma Agent (Mastra + OpenAI)
 
 **Files:**
+
 - Create: `lib/mastra/emma-agent.ts`
 - Create: `lib/mastra/index.ts`
 
@@ -418,15 +436,15 @@ git commit -m "feat: add Auth.js v5 with Google OAuth and JWT sessions"
 Create `lib/mastra/__tests__/emma-agent.test.ts`:
 
 ```typescript
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect } from "vitest";
 
-describe('emma agent', () => {
-  it('exports an Agent with name Emma', async () => {
-    const { emmaAgent } = await import('../emma-agent')
-    expect(emmaAgent).toBeDefined()
-    expect(emmaAgent.name).toBe('Emma')
-  })
-})
+describe("emma agent", () => {
+  it("exports an Agent with name Emma", async () => {
+    const { emmaAgent } = await import("../emma-agent");
+    expect(emmaAgent).toBeDefined();
+    expect(emmaAgent.name).toBe("Emma");
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -442,11 +460,11 @@ Expected: FAIL — `Cannot find module '../emma-agent'`
 Create `lib/mastra/emma-agent.ts`:
 
 ```typescript
-import { Agent } from '@mastra/core/agent'
-import { openai } from '@ai-sdk/openai'
+import { Agent } from "@mastra/core/agent";
+import { openai } from "@ai-sdk/openai";
 
 export const emmaAgent = new Agent({
-  name: 'Emma',
+  name: "Emma",
   instructions: `あなたは明るくてちょっとドジな魔法少女「エマ」です。
 以下のルールを必ず守って会話してください。
 
@@ -456,8 +474,8 @@ export const emmaAgent = new Agent({
 - ユーザーを温かく励ます
 - 暴力・差別・性的な内容など不適切なトピックには「えっと、それはちょっと…🌸」と断る
 - 日本語で会話する`,
-  model: openai('gpt-4o-mini'),
-})
+  model: openai("gpt-4o-mini"),
+});
 ```
 
 - [ ] **Step 4: Create Mastra instance**
@@ -465,14 +483,14 @@ export const emmaAgent = new Agent({
 Create `lib/mastra/index.ts`:
 
 ```typescript
-import { Mastra } from '@mastra/core'
-import { emmaAgent } from './emma-agent'
+import { Mastra } from "@mastra/core";
+import { emmaAgent } from "./emma-agent";
 
 export const mastra = new Mastra({
   agents: { emma: emmaAgent },
-})
+});
 
-export { emmaAgent }
+export { emmaAgent };
 ```
 
 - [ ] **Step 5: Run test to verify it passes**
@@ -495,6 +513,7 @@ git commit -m "feat: add Emma AI agent with Mastra and gpt-4o-mini"
 ## Task 5: Hono API — Chat Routes
 
 **Files:**
+
 - Create: `server/api/chat.ts`
 - Create: `server/api/index.ts`
 - Create: `app/api/[[...route]]/route.ts`
@@ -504,52 +523,62 @@ git commit -m "feat: add Emma AI agent with Mastra and gpt-4o-mini"
 Create `server/api/__tests__/chat.test.ts`:
 
 ```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { Hono } from 'hono'
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Hono } from "hono";
 
-const mockFindMany = vi.fn().mockResolvedValue([])
-const mockCreate = vi.fn().mockResolvedValue({})
-const mockDeleteMany = vi.fn().mockResolvedValue({ count: 0 })
-const mockFindUnique = vi.fn().mockResolvedValue({ id: 'user-1' })
+const mockFindMany = vi.fn().mockResolvedValue([]);
+const mockCreate = vi.fn().mockResolvedValue({});
+const mockDeleteMany = vi.fn().mockResolvedValue({ count: 0 });
+const mockFindUnique = vi.fn().mockResolvedValue({ id: "user-1" });
 
-vi.mock('@/lib/db', () => ({
+vi.mock("@/lib/db", () => ({
   db: {
-    message: { findMany: mockFindMany, create: mockCreate, deleteMany: mockDeleteMany },
+    message: {
+      findMany: mockFindMany,
+      create: mockCreate,
+      deleteMany: mockDeleteMany,
+    },
     user: { findUnique: mockFindUnique },
   },
-}))
+}));
 
 const mockStream = vi.fn().mockResolvedValue({
-  toDataStreamResponse: vi.fn().mockReturnValue(new Response('ok', { status: 200 })),
-})
+  toDataStreamResponse: vi
+    .fn()
+    .mockReturnValue(new Response("ok", { status: 200 })),
+});
 
-vi.mock('@/lib/mastra', () => ({
+vi.mock("@/lib/mastra", () => ({
   emmaAgent: { stream: mockStream },
-}))
+}));
 
-vi.mock('@/lib/auth', () => ({
-  auth: vi.fn().mockResolvedValue({ user: { id: 'user-1', email: 'test@example.com' } }),
-}))
+vi.mock("@/lib/auth", () => ({
+  auth: vi
+    .fn()
+    .mockResolvedValue({ user: { id: "user-1", email: "test@example.com" } }),
+}));
 
-describe('DELETE /api/chat', () => {
-  it('returns 401 when not authenticated', async () => {
-    const { auth } = await import('@/lib/auth')
-    vi.mocked(auth).mockResolvedValueOnce(null)
+describe("DELETE /api/chat", () => {
+  it("returns 401 when not authenticated", async () => {
+    const { auth } = await import("@/lib/auth");
+    vi.mocked(auth).mockResolvedValueOnce(null);
 
-    const { chatRoutes } = await import('../chat')
-    const app = new Hono().route('/chat', chatRoutes)
-    const res = await app.request('/chat', { method: 'DELETE' })
-    expect(res.status).toBe(401)
-  })
+    const { chatRoutes } = await import("../chat");
+    const app = new Hono().route("/chat", chatRoutes);
+    const res = await app.request("/chat", { method: "DELETE" });
+    expect(res.status).toBe(401);
+  });
 
-  it('deletes messages and returns 200 when authenticated', async () => {
-    const { chatRoutes } = await import('../chat')
-    const app = new Hono().route('/chat', chatRoutes)
-    const res = await app.request('/chat', { method: 'DELETE' })
-    expect(mockDeleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } })
-    expect(res.status).toBe(200)
-  })
-})
+  it("deletes messages and returns 200 when authenticated", async () => {
+    const { chatRoutes } = await import("../chat");
+    const app = new Hono().route("/chat", chatRoutes);
+    const res = await app.request("/chat", { method: "DELETE" });
+    expect(mockDeleteMany).toHaveBeenCalledWith({
+      where: { userId: "user-1" },
+    });
+    expect(res.status).toBe(200);
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -565,68 +594,71 @@ Expected: FAIL — `Cannot find module '../chat'`
 Create `server/api/chat.ts`:
 
 ```typescript
-import { Hono } from 'hono'
-import { stream } from 'hono/streaming'
-import { auth } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { emmaAgent } from '@/lib/mastra'
+import { Hono } from "hono";
+import { stream } from "hono/streaming";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { emmaAgent } from "@/lib/mastra";
 
-export const chatRoutes = new Hono()
+export const chatRoutes = new Hono();
 
-chatRoutes.post('/', async (c) => {
-  const session = await auth()
-  if (!session?.user?.id) return c.json({ error: 'Unauthorized' }, 401)
+chatRoutes.post("/", async (c) => {
+  const session = await auth();
+  if (!session?.user?.id) return c.json({ error: "Unauthorized" }, 401);
 
-  const { message } = await c.req.json<{ message: string }>()
-  if (!message?.trim()) return c.json({ error: 'Message required' }, 400)
+  const { message } = await c.req.json<{ message: string }>();
+  if (!message?.trim()) return c.json({ error: "Message required" }, 400);
 
-  const userId = session.user.id
+  const userId = session.user.id;
 
   const history = await db.message.findMany({
     where: { userId },
-    orderBy: { createdAt: 'asc' },
-  })
+    orderBy: { createdAt: "asc" },
+  });
 
   await db.message.create({
-    data: { userId, role: 'user', content: message },
-  })
+    data: { userId, role: "user", content: message },
+  });
 
   const messages = [
-    ...history.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
-    { role: 'user' as const, content: message },
-  ]
+    ...history.map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content,
+    })),
+    { role: "user" as const, content: message },
+  ];
 
-  const result = await emmaAgent.stream(messages)
+  const result = await emmaAgent.stream(messages);
 
-  let assistantContent = ''
+  let assistantContent = "";
 
   return stream(c, async (s) => {
-    const response = result.toDataStreamResponse()
-    const reader = response.body?.getReader()
-    if (!reader) return
+    const response = result.toDataStreamResponse();
+    const reader = response.body?.getReader();
+    if (!reader) return;
 
-    const decoder = new TextDecoder()
+    const decoder = new TextDecoder();
     while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      const chunk = decoder.decode(value)
-      assistantContent += chunk
-      await s.write(chunk)
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      assistantContent += chunk;
+      await s.write(chunk);
     }
 
     await db.message.create({
-      data: { userId, role: 'assistant', content: assistantContent },
-    })
-  })
-})
+      data: { userId, role: "assistant", content: assistantContent },
+    });
+  });
+});
 
-chatRoutes.delete('/', async (c) => {
-  const session = await auth()
-  if (!session?.user?.id) return c.json({ error: 'Unauthorized' }, 401)
+chatRoutes.delete("/", async (c) => {
+  const session = await auth();
+  if (!session?.user?.id) return c.json({ error: "Unauthorized" }, 401);
 
-  await db.message.deleteMany({ where: { userId: session.user.id } })
-  return c.json({ ok: true })
-})
+  await db.message.deleteMany({ where: { userId: session.user.id } });
+  return c.json({ ok: true });
+});
 ```
 
 - [ ] **Step 4: Create Hono app**
@@ -634,14 +666,14 @@ chatRoutes.delete('/', async (c) => {
 Create `server/api/index.ts`:
 
 ```typescript
-import { Hono } from 'hono'
-import { chatRoutes } from './chat'
+import { Hono } from "hono";
+import { chatRoutes } from "./chat";
 
-const app = new Hono().basePath('/api')
+const app = new Hono().basePath("/api");
 
-app.route('/chat', chatRoutes)
+app.route("/chat", chatRoutes);
 
-export default app
+export default app;
 ```
 
 - [ ] **Step 5: Mount Hono in Next.js**
@@ -649,14 +681,14 @@ export default app
 Create `app/api/[[...route]]/route.ts`:
 
 ```typescript
-import { handle } from 'hono/vercel'
-import app from '@/server/api'
+import { handle } from "hono/vercel";
+import app from "@/server/api";
 
-export const runtime = 'nodejs'
+export const runtime = "nodejs";
 
-export const GET = handle(app)
-export const POST = handle(app)
-export const DELETE = handle(app)
+export const GET = handle(app);
+export const POST = handle(app);
+export const DELETE = handle(app);
 ```
 
 - [ ] **Step 6: Run tests to verify they pass**
@@ -679,6 +711,7 @@ git commit -m "feat: add Hono API routes for chat (POST stream + DELETE reset)"
 ## Task 6: Login Page
 
 **Files:**
+
 - Create: `components/LoginPage.tsx`
 - Modify: `app/page.tsx`
 - Modify: `app/globals.css`
@@ -714,19 +747,27 @@ body {
 Create `components/LoginPage.tsx`:
 
 ```tsx
-'use client'
+"use client";
 
-import Image from 'next/image'
-import { signIn } from 'next-auth/react'
+import Image from "next/image";
+import { signIn } from "next-auth/react";
 
 export function LoginPage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-5 px-4"
-      style={{ background: 'linear-gradient(135deg, #1a0f2e, #2d1848 60%, #12091e)' }}>
-
+    <main
+      className="min-h-screen flex flex-col items-center justify-center gap-5 px-4"
+      style={{
+        background: "linear-gradient(135deg, #1a0f2e, #2d1848 60%, #12091e)",
+      }}
+    >
       <div className="relative">
-        <div className="w-24 h-24 rounded-full overflow-hidden border-2 shadow-lg"
-          style={{ borderColor: 'var(--accent)', boxShadow: '0 0 20px rgba(232,121,160,0.3)' }}>
+        <div
+          className="w-24 h-24 rounded-full overflow-hidden border-2 shadow-lg"
+          style={{
+            borderColor: "var(--accent)",
+            boxShadow: "0 0 20px rgba(232,121,160,0.3)",
+          }}
+        >
           <Image
             src="/images/emma-icon.png"
             alt="エマ"
@@ -739,30 +780,43 @@ export function LoginPage() {
       </div>
 
       <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>
+        <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>
           エマとおはなし
         </h1>
-        <p className="text-sm" style={{ color: 'var(--subtext)' }}>
-          ちょっとドジだけど明るい魔法少女のエマと<br />
+        <p className="text-sm" style={{ color: "var(--subtext)" }}>
+          ちょっとドジだけど明るい魔法少女のエマと
+          <br />
           自由に会話できるよ ✨
         </p>
       </div>
 
       <button
-        onClick={() => signIn('google', { callbackUrl: '/chat' })}
+        onClick={() => signIn("google", { callbackUrl: "/chat" })}
         className="flex items-center gap-3 bg-white text-gray-800 font-semibold
           px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-shadow cursor-pointer"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
-          <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          <path
+            d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"
+            fill="#4285F4"
+          />
+          <path
+            d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"
+            fill="#34A853"
+          />
+          <path
+            d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+            fill="#FBBC05"
+          />
+          <path
+            d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"
+            fill="#EA4335"
+          />
         </svg>
         Googleでログイン
       </button>
     </main>
-  )
+  );
 }
 ```
 
@@ -771,14 +825,14 @@ export function LoginPage() {
 Replace `app/page.tsx`:
 
 ```tsx
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
-import { LoginPage } from '@/components/LoginPage'
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { LoginPage } from "@/components/LoginPage";
 
 export default async function Home() {
-  const session = await auth()
-  if (session) redirect('/chat')
-  return <LoginPage />
+  const session = await auth();
+  if (session) redirect("/chat");
+  return <LoginPage />;
 }
 ```
 
@@ -787,21 +841,25 @@ export default async function Home() {
 Replace `app/layout.tsx`:
 
 ```tsx
-import type { Metadata } from 'next'
-import { SessionProvider } from 'next-auth/react'
-import './globals.css'
+import type { Metadata } from "next";
+import { SessionProvider } from "next-auth/react";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'エマとおはなし',
-  description: '魔法少女エマとお話しできるチャットアプリ',
-}
+  title: "エマとおはなし",
+  description: "魔法少女エマとお話しできるチャットアプリ",
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="ja">
       <body>{children}</body>
     </html>
-  )
+  );
 }
 ```
 
@@ -830,6 +888,7 @@ git commit -m "feat: add login page with Google OAuth button"
 ## Task 7: Toast Component
 
 **Files:**
+
 - Create: `components/Toast.tsx`
 
 - [ ] **Step 1: Write the failing test**
@@ -837,22 +896,22 @@ git commit -m "feat: add login page with Google OAuth button"
 Create `components/__tests__/Toast.test.tsx`:
 
 ```tsx
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
-import { Toast } from '../Toast'
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
+import { Toast } from "../Toast";
 
-describe('Toast', () => {
-  it('renders the message when visible', () => {
-    render(<Toast message="エラーが発生しました" visible={true} />)
-    expect(screen.getByText('エラーが発生しました')).toBeInTheDocument()
-  })
+describe("Toast", () => {
+  it("renders the message when visible", () => {
+    render(<Toast message="エラーが発生しました" visible={true} />);
+    expect(screen.getByText("エラーが発生しました")).toBeInTheDocument();
+  });
 
-  it('is hidden when visible is false', () => {
-    render(<Toast message="エラー" visible={false} />)
-    const el = screen.getByText('エラー')
-    expect(el.parentElement).toHaveClass('opacity-0')
-  })
-})
+  it("is hidden when visible is false", () => {
+    render(<Toast message="エラー" visible={false} />);
+    const el = screen.getByText("エラー");
+    expect(el.parentElement).toHaveClass("opacity-0");
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -868,11 +927,11 @@ Expected: FAIL — `Cannot find module '../Toast'`
 Create `components/Toast.tsx`:
 
 ```tsx
-'use client'
+"use client";
 
 interface ToastProps {
-  message: string
-  visible: boolean
+  message: string;
+  visible: boolean;
 }
 
 export function Toast({ message, visible }: ToastProps) {
@@ -881,12 +940,16 @@ export function Toast({ message, visible }: ToastProps) {
       className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50
         px-4 py-2 rounded-lg text-sm font-medium
         transition-opacity duration-300 pointer-events-none
-        ${visible ? 'opacity-100' : 'opacity-0'}`}
-      style={{ background: 'var(--user-bubble)', color: 'var(--text)', border: '1px solid var(--accent)' }}
+        ${visible ? "opacity-100" : "opacity-0"}`}
+      style={{
+        background: "var(--user-bubble)",
+        color: "var(--text)",
+        border: "1px solid var(--accent)",
+      }}
     >
       {message}
     </div>
-  )
+  );
 }
 ```
 
@@ -910,6 +973,7 @@ git commit -m "feat: add Toast component for error notifications"
 ## Task 8: MessageInput Component
 
 **Files:**
+
 - Create: `components/MessageInput.tsx`
 
 - [ ] **Step 1: Write the failing test**
@@ -917,35 +981,35 @@ git commit -m "feat: add Toast component for error notifications"
 Create `components/__tests__/MessageInput.test.tsx`:
 
 ```tsx
-import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
-import { MessageInput } from '../MessageInput'
+import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { MessageInput } from "../MessageInput";
 
-describe('MessageInput', () => {
-  it('calls onSend with input value on submit', () => {
-    const onSend = vi.fn()
-    render(<MessageInput onSend={onSend} disabled={false} />)
+describe("MessageInput", () => {
+  it("calls onSend with input value on submit", () => {
+    const onSend = vi.fn();
+    render(<MessageInput onSend={onSend} disabled={false} />);
 
-    const input = screen.getByPlaceholderText('メッセージを入力...')
-    fireEvent.change(input, { target: { value: 'こんにちは' } })
-    fireEvent.submit(input.closest('form')!)
+    const input = screen.getByPlaceholderText("メッセージを入力...");
+    fireEvent.change(input, { target: { value: "こんにちは" } });
+    fireEvent.submit(input.closest("form")!);
 
-    expect(onSend).toHaveBeenCalledWith('こんにちは')
-  })
+    expect(onSend).toHaveBeenCalledWith("こんにちは");
+  });
 
-  it('does not call onSend when input is empty', () => {
-    const onSend = vi.fn()
-    render(<MessageInput onSend={onSend} disabled={false} />)
-    fireEvent.submit(screen.getByRole('form'))
-    expect(onSend).not.toHaveBeenCalled()
-  })
+  it("does not call onSend when input is empty", () => {
+    const onSend = vi.fn();
+    render(<MessageInput onSend={onSend} disabled={false} />);
+    fireEvent.submit(screen.getByRole("form"));
+    expect(onSend).not.toHaveBeenCalled();
+  });
 
-  it('disables input and button when disabled=true', () => {
-    render(<MessageInput onSend={vi.fn()} disabled={true} />)
-    expect(screen.getByPlaceholderText('メッセージを入力...')).toBeDisabled()
-    expect(screen.getByRole('button')).toBeDisabled()
-  })
-})
+  it("disables input and button when disabled=true", () => {
+    render(<MessageInput onSend={vi.fn()} disabled={true} />);
+    expect(screen.getByPlaceholderText("メッセージを入力...")).toBeDisabled();
+    expect(screen.getByRole("button")).toBeDisabled();
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -961,23 +1025,23 @@ Expected: FAIL — `Cannot find module '../MessageInput'`
 Create `components/MessageInput.tsx`:
 
 ```tsx
-'use client'
+"use client";
 
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from "react";
 
 interface MessageInputProps {
-  onSend: (message: string) => void
-  disabled: boolean
+  onSend: (message: string) => void;
+  disabled: boolean;
 }
 
 export function MessageInput({ onSend, disabled }: MessageInputProps) {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState("");
 
   function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    if (!value.trim()) return
-    onSend(value.trim())
-    setValue('')
+    e.preventDefault();
+    if (!value.trim()) return;
+    onSend(value.trim());
+    setValue("");
   }
 
   return (
@@ -985,7 +1049,7 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
       role="form"
       onSubmit={handleSubmit}
       className="flex gap-2 p-3 border-t"
-      style={{ borderColor: 'var(--input-border)', background: 'var(--bg)' }}
+      style={{ borderColor: "var(--input-border)", background: "var(--bg)" }}
     >
       <input
         type="text"
@@ -995,9 +1059,9 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
         disabled={disabled}
         className="flex-1 rounded-full px-4 py-2 text-sm outline-none disabled:opacity-50"
         style={{
-          background: 'var(--input-bg)',
-          border: '1px solid var(--input-border)',
-          color: 'var(--text)',
+          background: "var(--input-bg)",
+          border: "1px solid var(--input-border)",
+          color: "var(--text)",
         }}
       />
       <button
@@ -1005,14 +1069,21 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
         disabled={disabled || !value.trim()}
         className="w-9 h-9 rounded-full flex items-center justify-center
           text-white transition-opacity disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
-        style={{ background: 'var(--button-gradient)' }}
+        style={{ background: "var(--button-gradient)" }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z" />
         </svg>
       </button>
     </form>
-  )
+  );
 }
 ```
 
@@ -1036,6 +1107,7 @@ git commit -m "feat: add MessageInput component with submit handling"
 ## Task 9: MessageList Component
 
 **Files:**
+
 - Create: `components/MessageList.tsx`
 
 - [ ] **Step 1: Write the failing test**
@@ -1043,32 +1115,40 @@ git commit -m "feat: add MessageInput component with submit handling"
 Create `components/__tests__/MessageList.test.tsx`:
 
 ```tsx
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
-import { MessageList } from '../MessageList'
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
+import { MessageList } from "../MessageList";
 
 const messages = [
-  { role: 'assistant' as const, content: 'こんにちは！' },
-  { role: 'user' as const, content: 'よろしく！' },
-]
+  { role: "assistant" as const, content: "こんにちは！" },
+  { role: "user" as const, content: "よろしく！" },
+];
 
-describe('MessageList', () => {
-  it('renders all messages', () => {
-    render(<MessageList messages={messages} streaming={false} streamingContent="" />)
-    expect(screen.getByText('こんにちは！')).toBeInTheDocument()
-    expect(screen.getByText('よろしく！')).toBeInTheDocument()
-  })
+describe("MessageList", () => {
+  it("renders all messages", () => {
+    render(
+      <MessageList messages={messages} streaming={false} streamingContent="" />,
+    );
+    expect(screen.getByText("こんにちは！")).toBeInTheDocument();
+    expect(screen.getByText("よろしく！")).toBeInTheDocument();
+  });
 
-  it('shows streaming content when streaming=true', () => {
-    render(<MessageList messages={[]} streaming={true} streamingContent="入力中..." />)
-    expect(screen.getByText('入力中...')).toBeInTheDocument()
-  })
+  it("shows streaming content when streaming=true", () => {
+    render(
+      <MessageList
+        messages={[]}
+        streaming={true}
+        streamingContent="入力中..."
+      />,
+    );
+    expect(screen.getByText("入力中...")).toBeInTheDocument();
+  });
 
-  it('shows typing indicator when streaming and streamingContent is empty', () => {
-    render(<MessageList messages={[]} streaming={true} streamingContent="" />)
-    expect(screen.getByTestId('typing-indicator')).toBeInTheDocument()
-  })
-})
+  it("shows typing indicator when streaming and streamingContent is empty", () => {
+    render(<MessageList messages={[]} streaming={true} streamingContent="" />);
+    expect(screen.getByTestId("typing-indicator")).toBeInTheDocument();
+  });
+});
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -1084,48 +1164,69 @@ Expected: FAIL — `Cannot find module '../MessageList'`
 Create `components/MessageList.tsx`:
 
 ```tsx
-'use client'
+"use client";
 
-import Image from 'next/image'
-import { useEffect, useRef } from 'react'
+import Image from "next/image";
+import { useEffect, useRef } from "react";
 
 interface Message {
-  role: 'user' | 'assistant'
-  content: string
+  role: "user" | "assistant";
+  content: string;
 }
 
 interface MessageListProps {
-  messages: Message[]
-  streaming: boolean
-  streamingContent: string
+  messages: Message[];
+  streaming: boolean;
+  streamingContent: string;
 }
 
-export function MessageList({ messages, streaming, streamingContent }: MessageListProps) {
-  const bottomRef = useRef<HTMLDivElement>(null)
+export function MessageList({
+  messages,
+  streaming,
+  streamingContent,
+}: MessageListProps) {
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, streamingContent])
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, streamingContent]);
 
   return (
     <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
       {messages.map((msg, i) => (
         <div
           key={i}
-          className={`flex gap-2 items-start ${msg.role === 'user' ? 'justify-end' : ''}`}
+          className={`flex gap-2 items-start ${msg.role === "user" ? "justify-end" : ""}`}
         >
-          {msg.role === 'assistant' && (
-            <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border"
-              style={{ borderColor: 'var(--accent)' }}>
-              <Image src="/images/emma-icon.png" alt="エマ" width={24} height={24} className="object-cover" />
+          {msg.role === "assistant" && (
+            <div
+              className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border"
+              style={{ borderColor: "var(--accent)" }}
+            >
+              <Image
+                src="/images/emma-icon.png"
+                alt="エマ"
+                width={24}
+                height={24}
+                className="object-cover"
+              />
             </div>
           )}
           <div
             className="max-w-[75%] rounded-2xl px-3 py-2 text-sm leading-relaxed"
             style={
-              msg.role === 'assistant'
-                ? { background: 'var(--emma-bubble)', border: '1px solid var(--emma-border)', color: 'var(--text)', borderRadius: '0 12px 12px 12px' }
-                : { background: 'var(--user-bubble)', color: 'var(--text)', borderRadius: '12px 0 12px 12px' }
+              msg.role === "assistant"
+                ? {
+                    background: "var(--emma-bubble)",
+                    border: "1px solid var(--emma-border)",
+                    color: "var(--text)",
+                    borderRadius: "0 12px 12px 12px",
+                  }
+                : {
+                    background: "var(--user-bubble)",
+                    color: "var(--text)",
+                    borderRadius: "12px 0 12px 12px",
+                  }
             }
           >
             {msg.content}
@@ -1135,19 +1236,47 @@ export function MessageList({ messages, streaming, streamingContent }: MessageLi
 
       {streaming && (
         <div className="flex gap-2 items-start">
-          <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border"
-            style={{ borderColor: 'var(--accent)' }}>
-            <Image src="/images/emma-icon.png" alt="エマ" width={24} height={24} className="object-cover" />
+          <div
+            className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border"
+            style={{ borderColor: "var(--accent)" }}
+          >
+            <Image
+              src="/images/emma-icon.png"
+              alt="エマ"
+              width={24}
+              height={24}
+              className="object-cover"
+            />
           </div>
           <div
             className="max-w-[75%] px-3 py-2 text-sm leading-relaxed"
-            style={{ background: 'var(--emma-bubble)', border: '1px solid var(--emma-border)', color: 'var(--text)', borderRadius: '0 12px 12px 12px' }}
+            style={{
+              background: "var(--emma-bubble)",
+              border: "1px solid var(--emma-border)",
+              color: "var(--text)",
+              borderRadius: "0 12px 12px 12px",
+            }}
           >
             {streamingContent || (
               <span data-testid="typing-indicator" className="flex gap-1">
-                <span className="animate-bounce" style={{ animationDelay: '0ms' }}>●</span>
-                <span className="animate-bounce" style={{ animationDelay: '150ms' }}>●</span>
-                <span className="animate-bounce" style={{ animationDelay: '300ms' }}>●</span>
+                <span
+                  className="animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                >
+                  ●
+                </span>
+                <span
+                  className="animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                >
+                  ●
+                </span>
+                <span
+                  className="animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                >
+                  ●
+                </span>
               </span>
             )}
           </div>
@@ -1156,7 +1285,7 @@ export function MessageList({ messages, streaming, streamingContent }: MessageLi
 
       <div ref={bottomRef} />
     </div>
-  )
+  );
 }
 ```
 
@@ -1180,6 +1309,7 @@ git commit -m "feat: add MessageList with streaming indicator"
 ## Task 10: ChatPage Component
 
 **Files:**
+
 - Create: `components/ChatPage.tsx`
 - Create: `app/chat/page.tsx`
 
@@ -1188,102 +1318,112 @@ git commit -m "feat: add MessageList with streaming indicator"
 Create `components/ChatPage.tsx`:
 
 ```tsx
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { signOut } from 'next-auth/react'
-import Image from 'next/image'
-import { MessageList } from './MessageList'
-import { MessageInput } from './MessageInput'
-import { Toast } from './Toast'
+import { useState, useCallback } from "react";
+import { signOut } from "next-auth/react";
+import Image from "next/image";
+import { MessageList } from "./MessageList";
+import { MessageInput } from "./MessageInput";
+import { Toast } from "./Toast";
 
 interface Message {
-  role: 'user' | 'assistant'
-  content: string
+  role: "user" | "assistant";
+  content: string;
 }
 
 interface ChatPageProps {
-  initialMessages: Message[]
+  initialMessages: Message[];
 }
 
 export function ChatPage({ initialMessages }: ChatPageProps) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages)
-  const [streaming, setStreaming] = useState(false)
-  const [streamingContent, setStreamingContent] = useState('')
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [streaming, setStreaming] = useState(false);
+  const [streamingContent, setStreamingContent] = useState("");
   const [toast, setToast] = useState<{ message: string; visible: boolean }>({
-    message: '',
+    message: "",
     visible: false,
-  })
+  });
 
   function showToast(message: string) {
-    setToast({ message, visible: true })
-    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 3000)
+    setToast({ message, visible: true });
+    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 3000);
   }
 
   const handleSend = useCallback(async (message: string) => {
-    setMessages((prev) => [...prev, { role: 'user', content: message }])
-    setStreaming(true)
-    setStreamingContent('')
+    setMessages((prev) => [...prev, { role: "user", content: message }]);
+    setStreaming(true);
+    setStreamingContent("");
 
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
-      })
+      });
 
-      if (!res.ok || !res.body) throw new Error('API error')
+      if (!res.ok || !res.body) throw new Error("API error");
 
-      const reader = res.body.getReader()
-      const decoder = new TextDecoder()
-      let full = ''
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let full = "";
 
       while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        const chunk = decoder.decode(value)
-        full += chunk
-        setStreamingContent(full)
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        full += chunk;
+        setStreamingContent(full);
       }
 
-      setMessages((prev) => [...prev, { role: 'assistant', content: full }])
+      setMessages((prev) => [...prev, { role: "assistant", content: full }]);
     } catch {
-      showToast('ちょっと魔法が乱れちゃったみたい…もう一度試してね🌸')
+      showToast("ちょっと魔法が乱れちゃったみたい…もう一度試してね🌸");
     } finally {
-      setStreaming(false)
-      setStreamingContent('')
+      setStreaming(false);
+      setStreamingContent("");
     }
-  }, [])
+  }, []);
 
   async function handleReset() {
     try {
-      const res = await fetch('/api/chat', { method: 'DELETE' })
-      if (!res.ok) throw new Error()
-      setMessages([])
+      const res = await fetch("/api/chat", { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setMessages([]);
     } catch {
-      showToast('リセットに失敗したよ…もう一度試してね🌸')
+      showToast("リセットに失敗したよ…もう一度試してね🌸");
     }
   }
 
   return (
-    <div className="flex flex-col h-screen" style={{ background: 'var(--bg)' }}>
+    <div className="flex flex-col h-screen" style={{ background: "var(--bg)" }}>
       {/* Hero area */}
       <div
         className="relative flex flex-col items-center gap-2 py-4 px-4"
-        style={{ background: 'linear-gradient(180deg, var(--hero) 0%, var(--bg) 100%)' }}
+        style={{
+          background: "linear-gradient(180deg, var(--hero) 0%, var(--bg) 100%)",
+        }}
       >
         <div className="absolute top-3 right-3 flex gap-2">
           <button
             onClick={handleReset}
             className="text-xs px-3 py-1 rounded-lg cursor-pointer transition-opacity hover:opacity-80"
-            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid var(--emma-border)', color: 'var(--subtext)' }}
+            style={{
+              background: "rgba(255,255,255,0.07)",
+              border: "1px solid var(--emma-border)",
+              color: "var(--subtext)",
+            }}
           >
             🌸 リセット
           </button>
           <button
-            onClick={() => signOut({ callbackUrl: '/' })}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="text-xs px-3 py-1 rounded-lg cursor-pointer transition-opacity hover:opacity-80"
-            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid var(--emma-border)', color: 'var(--subtext)' }}
+            style={{
+              background: "rgba(255,255,255,0.07)",
+              border: "1px solid var(--emma-border)",
+              color: "var(--subtext)",
+            }}
           >
             ログアウト
           </button>
@@ -1291,23 +1431,40 @@ export function ChatPage({ initialMessages }: ChatPageProps) {
 
         <div
           className="w-16 h-16 rounded-full overflow-hidden border-2 mt-2 shadow-lg"
-          style={{ borderColor: 'var(--accent)', boxShadow: '0 0 16px rgba(232,121,160,0.3)' }}
+          style={{
+            borderColor: "var(--accent)",
+            boxShadow: "0 0 16px rgba(232,121,160,0.3)",
+          }}
         >
-          <Image src="/images/emma-icon.png" alt="エマ" width={64} height={64} className="w-full h-full object-cover" />
+          <Image
+            src="/images/emma-icon.png"
+            alt="エマ"
+            width={64}
+            height={64}
+            className="w-full h-full object-cover"
+          />
         </div>
-        <p className="font-bold text-sm" style={{ color: 'var(--text)' }}>エマ</p>
-        <p className="text-xs" style={{ color: 'var(--subtext)' }}>明るくてちょっとドジな魔法少女</p>
+        <p className="font-bold text-sm" style={{ color: "var(--text)" }}>
+          エマ
+        </p>
+        <p className="text-xs" style={{ color: "var(--subtext)" }}>
+          明るくてちょっとドジな魔法少女
+        </p>
       </div>
 
       {/* Message list */}
-      <MessageList messages={messages} streaming={streaming} streamingContent={streamingContent} />
+      <MessageList
+        messages={messages}
+        streaming={streaming}
+        streamingContent={streamingContent}
+      />
 
       {/* Input */}
       <MessageInput onSend={handleSend} disabled={streaming} />
 
       <Toast message={toast.message} visible={toast.visible} />
     </div>
-  )
+  );
 }
 ```
 
@@ -1316,29 +1473,29 @@ export function ChatPage({ initialMessages }: ChatPageProps) {
 Create `app/chat/page.tsx`:
 
 ```tsx
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
-import { db } from '@/lib/db'
-import { ChatPage } from '@/components/ChatPage'
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
+import { ChatPage } from "@/components/ChatPage";
 
 export default async function Chat() {
-  const session = await auth()
-  if (!session?.user?.id) redirect('/')
+  const session = await auth();
+  if (!session?.user?.id) redirect("/");
 
   const messages = await db.message.findMany({
     where: { userId: session.user.id },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { createdAt: "asc" },
     select: { role: true, content: true },
-  })
+  });
 
   return (
     <ChatPage
       initialMessages={messages.map((m) => ({
-        role: m.role as 'user' | 'assistant',
+        role: m.role as "user" | "assistant",
         content: m.content,
       }))}
     />
-  )
+  );
 }
 ```
 
@@ -1381,6 +1538,7 @@ npm run dev
 - [ ] **Step 4: Test on mobile viewport**
 
 In browser DevTools, set viewport to 375×812 (iPhone). Verify:
+
 - Hero area is compact but readable
 - Chat fills full height
 - Input is accessible above keyboard (test by tapping input)
@@ -1397,6 +1555,7 @@ git commit -m "chore: verify all tests pass and smoke test complete"
 ## Task 12: Dockerfile + Cloud Run
 
 **Files:**
+
 - Create: `Dockerfile`
 - Create: `.dockerignore`
 
@@ -1457,13 +1616,13 @@ CMD ["node", "server.js"]
 In `next.config.ts`, set:
 
 ```typescript
-import type { NextConfig } from 'next'
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
-}
+  output: "standalone",
+};
 
-export default nextConfig
+export default nextConfig;
 ```
 
 - [ ] **Step 4: Build and test Docker image locally**
