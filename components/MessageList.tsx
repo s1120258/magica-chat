@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useEffect, useRef } from 'react'
 
 interface Message {
+  id?: string
   role: 'user' | 'assistant'
   content: string
 }
@@ -25,7 +26,7 @@ export function MessageList({ messages, streaming, streamingContent }: MessageLi
     <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
       {messages.map((msg, i) => (
         <div
-          key={i}
+          key={msg.id ?? i}
           className={`flex gap-2 items-start ${msg.role === 'user' ? 'justify-end' : ''}`}
         >
           {msg.role === 'assistant' && (

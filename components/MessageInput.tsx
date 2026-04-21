@@ -39,12 +39,13 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
       />
       <button
         type="submit"
+        aria-label="送信"
         disabled={disabled || !value.trim()}
         className="w-9 h-9 rounded-full flex items-center justify-center
           text-white transition-opacity disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
         style={{ background: 'var(--button-gradient)' }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/>
         </svg>
       </button>
