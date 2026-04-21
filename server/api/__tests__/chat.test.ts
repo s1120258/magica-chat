@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { Hono } from 'hono'
 
 const mockFindMany = vi.fn().mockResolvedValue([])
@@ -14,7 +14,13 @@ vi.mock('@/lib/db', () => ({
 }))
 
 const mockStream = vi.fn().mockResolvedValue({
-  toDataStreamResponse: vi.fn().mockReturnValue(new Response('ok', { status: 200 })),
+  textStream: {
+    getReader: vi.fn().mockReturnValue({
+      read: vi.fn()
+        .mockResolvedValueOnce({ done: false, value: 'こんにちは！' })
+        .mockResolvedValueOnce({ done: true, value: undefined }),
+    }),
+  },
 })
 
 vi.mock('@/lib/mastra', () => ({

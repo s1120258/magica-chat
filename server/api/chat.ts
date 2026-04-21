@@ -29,28 +29,32 @@ chatRoutes.post('/', async (c) => {
     { role: 'user' as const, content: message },
   ]
 
-  const result = await emmaAgent.stream(messages)
-
   let assistantContent = ''
 
-  return stream(c, async (s) => {
-    const response = result.toDataStreamResponse()
-    const reader = response.body?.getReader()
-    if (!reader) return
+  try {
+    const result = await emmaAgent.stream(messages)
+    const reader = result.textStream.getReader()
 
-    const decoder = new TextDecoder()
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      const chunk = decoder.decode(value)
-      assistantContent += chunk
-      await s.write(chunk)
-    }
-
-    await db.message.create({
-      data: { userId, role: 'assistant', content: assistantContent },
+    return stream(c, async (s) => {
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          assistantContent += value
+          await s.write(value)
+        }
+        await db.message.create({
+          data: { userId, role: 'assistant', content: assistantContent },
+        })
+      } catch (err) {
+        console.error('Stream error:', err)
+        await s.write('ちょっと魔法が乱れちゃったみたい…もう一度試してね🌸')
+      }
     })
-  })
+  } catch (err) {
+    console.error('Agent error:', err)
+    return c.json({ error: 'ちょっと魔法が乱れちゃったみたい…もう一度試してね🌸' }, 500)
+  }
 })
 
 chatRoutes.delete('/', async (c) => {
