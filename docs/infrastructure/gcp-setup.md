@@ -87,17 +87,15 @@ echo -n "YOUR_VALUE" | gcloud secrets versions add SECRET_NAME --data-file=-
 
 ## Google OAuth クライアント
 
-| 項目                            | 値                                                                   |
-| ------------------------------- | -------------------------------------------------------------------- |
-| 種別                            | ウェブ アプリケーション                                              |
-| 名前                            | `magica-chat`                                                        |
-| 作成日                          | 2026-04-21                                                           |
-| 承認済みリダイレクトURI（開発） | `http://localhost:3000/api/auth/callback/google`                     |
-| 承認済みリダイレクトURI（本番） | `https://[CLOUD_RUN_URL]/api/auth/callback/google` ※デプロイ後に追加 |
+| 項目                            | 値                                                                                  |
+| ------------------------------- | ----------------------------------------------------------------------------------- |
+| 種別                            | ウェブ アプリケーション                                                             |
+| 名前                            | `magica-chat`                                                                       |
+| 作成日                          | 2026-04-21                                                                          |
+| 承認済みリダイレクトURI（開発） | `http://localhost:3000/api/auth/callback/google`                                    |
+| 承認済みリダイレクトURI（本番） | `https://magica-chat-465868710935.asia-northeast1.run.app/api/auth/callback/google` |
 
 **確認場所**: [Google Cloud Console > APIs & Services > 認証情報](https://console.cloud.google.com/apis/credentials?project=magicachat-494008)
-
-> **注意**: Cloud Run の公開 URL が確定した後、本番用リダイレクト URI を OAuth クライアントに追加する必要がある。
 
 ---
 
@@ -186,35 +184,36 @@ gcloud projects add-iam-policy-binding magicachat-494008 \
 
 `cloudbuild.yaml` によって自動デプロイされる。
 
-| 項目             | 値                                    |
-| ---------------- | ------------------------------------- |
-| サービス名       | `magica-chat`                         |
-| リージョン       | `asia-northeast1`                     |
-| プラットフォーム | managed（フルマネージド）             |
-| 認証             | `--allow-unauthenticated`（一般公開） |
-| 注入シークレット | 上記 Secret Manager の5件すべて       |
+| 項目             | 値                                                                              |
+| ---------------- | ------------------------------------------------------------------------------- |
+| サービス名       | `magica-chat`                                                                   |
+| リージョン       | `asia-northeast1`                                                               |
+| プラットフォーム | managed（フルマネージド）                                                       |
+| 認証             | `--allow-unauthenticated`（一般公開）                                           |
+| 公開 URL         | `https://magica-chat-465868710935.asia-northeast1.run.app`                      |
+| 注入シークレット | 上記 Secret Manager の5件すべて                                                 |
+
+---
+
+## MongoDB Atlas — ネットワークアクセス設定
+
+Cloud Run はデプロイごとに異なる IP を使用するため、MongoDB Atlas の IP 許可リストに `0.0.0.0/0`（Allow Access from Anywhere）を設定する必要がある。
+
+**設定場所**: MongoDB Atlas > Network Access > Add IP Address > `0.0.0.0/0`
 
 ---
 
 ## デプロイ後の確認事項
 
-1. **Cloud Run の公開 URL を確認**
+1. **Google OAuth のリダイレクト URI を追加**（初回のみ）
 
-   ```bash
-   gcloud run services describe magica-chat \
-     --region=asia-northeast1 \
-     --format='value(status.url)'
-   ```
-
-2. **Google OAuth のリダイレクト URI を追加**
-
-   [Google Cloud Console > 認証情報](https://console.cloud.google.com/apis/credentials?project=magicachat-494008) を開き、作成済みの OAuth クライアントに以下を追加：
+   [Google Cloud Console > 認証情報](https://console.cloud.google.com/apis/credentials?project=magicachat-494008) を開き、OAuth クライアントに以下を追加：
 
    ```
-   https://[CLOUD_RUN_URL]/api/auth/callback/google
+   https://magica-chat-465868710935.asia-northeast1.run.app/api/auth/callback/google
    ```
 
-3. **OAuth テストユーザーの追加**（テスト公開中の場合）
+2. **OAuth テストユーザーの追加**（テスト公開中の場合）
 
    [OAuth 同意画面 > テストユーザー](https://console.cloud.google.com/apis/credentials/consent?project=magicachat-494008) にログイン予定のメールアドレスを追加する。
 

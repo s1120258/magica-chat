@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# magica-chat
 
-## Getting Started
+魔法少女キャラクター「エマ」と会話できる、一般ユーザー向けエンターテイメント AI チャットボット。
 
-First, run the development server:
+---
+
+## サービス URL
+
+| 環境     | URL                                                                      |
+| -------- | ------------------------------------------------------------------------ |
+| 本番     | <https://magica-chat-465868710935.asia-northeast1.run.app>               |
+| ローカル | <http://localhost:3000>                                                  |
+
+---
+
+## キャラクター
+
+**エマ** — 明るくてちょっとドジな魔法少女。「〜だよ」「〜だね」口調で、魔法表現（✨🌸）を使いながら会話します。
+
+---
+
+## 主な機能
+
+- Google アカウントでログイン
+- AI キャラクター「エマ」とのストリーミングチャット
+- 会話履歴の保存・表示
+- 会話履歴のリセット
+
+---
+
+## アーキテクチャ
+
+```text
+ブラウザ
+  └── Next.js App Router（Google Cloud Run）
+        ├── /           ログイン画面（Google OAuth）
+        ├── /chat        チャット画面
+        └── /api/chat    Mastra エージェント（OpenAI gpt-4o-mini）
+                              └── Prisma → MongoDB Atlas（会話履歴）
+```
+
+| 役割            | 技術                                            |
+| --------------- | ----------------------------------------------- |
+| フレームワーク  | Next.js 16 App Router                           |
+| API ルーター    | Hono                                            |
+| AI エージェント | Mastra + OpenAI gpt-4o-mini                     |
+| ORM             | Prisma v6 + MongoDB Atlas                       |
+| 認証            | Auth.js v5（Google OAuth / JWT）                |
+| ホスティング    | Google Cloud Run（asia-northeast1）             |
+| CI/CD           | Cloud Build（main ブランチ push で自動デプロイ）|
+
+---
+
+## ローカル開発
+
+### 前提条件
+
+- Node.js 20+
+- MongoDB Atlas クラスター（または接続文字列）
+- Google OAuth クライアント ID / シークレット
+- OpenAI API キー
+
+### セットアップ
+
+```bash
+npm install
+cp .env.example .env.local
+```
+
+`.env.local` に以下を設定:
+
+```env
+AUTH_SECRET=           # openssl rand -base64 32 で生成
+AUTH_GOOGLE_ID=        # Google OAuth クライアント ID
+AUTH_GOOGLE_SECRET=    # Google OAuth クライアントシークレット
+OPENAI_API_KEY=        # OpenAI API キー
+DATABASE_URL=          # MongoDB Atlas 接続文字列
+```
+
+Google OAuth の承認済みリダイレクト URI に `http://localhost:3000/api/auth/callback/google` を追加してください。
+
+### 起動
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+<http://localhost:3000> でアクセスできます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## デプロイ
 
-## Learn More
+`main` ブランチへの push で Cloud Build が自動的にビルド・デプロイします。
 
-To learn more about Next.js, take a look at the following resources:
+手動デプロイや GCP 環境のセットアップ手順は [docs/infrastructure/gcp-setup.md](docs/infrastructure/gcp-setup.md) を参照してください。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API
 
-## Deploy on Vercel
+| メソッド | パス        | 説明                                        | 認証 |
+| -------- | ----------- | ------------------------------------------- | ---- |
+| POST     | `/api/chat` | エマとのチャット（ストリーミングレスポンス）| 必要 |
+| DELETE   | `/api/chat` | 会話履歴をリセット                          | 必要 |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 詳細ドキュメント
+
+- [設計書](docs/superpowers/specs/2026-04-21-ai-chatbot-design.md)
+- [GCP インフラ構成](docs/infrastructure/gcp-setup.md)
