@@ -9,7 +9,13 @@ vi.mock('@prisma/client', () => ({
 }))
 
 vi.mock('next-auth', () => ({
-  default: vi.fn((config) => ({ config, handlers: {}, auth: vi.fn(), signIn: vi.fn(), signOut: vi.fn() })),
+  default: vi.fn((config) => ({
+    config,
+    handlers: {},
+    auth: vi.fn(),
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+  })),
 }))
 
 vi.mock('next-auth/providers/google', () => ({ default: vi.fn(() => ({ id: 'google' })) }))

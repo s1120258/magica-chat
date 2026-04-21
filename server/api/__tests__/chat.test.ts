@@ -13,7 +13,8 @@ vi.mock('@/lib/db', () => ({
   },
 }))
 
-const mockRead = vi.fn()
+const mockRead = vi
+  .fn()
   .mockResolvedValueOnce({ done: false, value: 'こんにちは！' })
   .mockResolvedValue({ done: true, value: undefined })
 
@@ -83,9 +84,7 @@ describe('POST /api/chat', () => {
   })
 
   it('saves user message and calls agent with history', async () => {
-    mockFindMany.mockResolvedValueOnce([
-      { role: 'user', content: '以前のメッセージ' },
-    ])
+    mockFindMany.mockResolvedValueOnce([{ role: 'user', content: '以前のメッセージ' }])
     const app = await getApp()
     await app.request('/chat', {
       method: 'POST',

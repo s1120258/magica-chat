@@ -1,7 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
 
 vi.mock('@prisma/client', () => {
-  const PrismaClient = vi.fn(function () { return { $connect: vi.fn() } })
+  const PrismaClient = vi.fn(function () {
+    return { $connect: vi.fn() }
+  })
   return { PrismaClient }
 })
 

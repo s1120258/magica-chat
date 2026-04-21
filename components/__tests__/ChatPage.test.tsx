@@ -36,17 +36,14 @@ describe('ChatPage', () => {
           { id: '1', role: 'user', content: 'こんにちは' },
           { id: '2', role: 'assistant', content: 'こんにちは！エマだよ✨' },
         ]}
-      />
+      />,
     )
     expect(screen.getByText('こんにちは')).toBeInTheDocument()
     expect(screen.getByText('こんにちは！エマだよ✨')).toBeInTheDocument()
   })
 
   it('sends a message and displays streaming response', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue(makeStreamResponse(['魔法', 'だよ✨']))
-    )
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(makeStreamResponse(['魔法', 'だよ✨'])))
 
     render(<ChatPage initialMessages={[]} />)
 
@@ -69,22 +66,18 @@ describe('ChatPage', () => {
 
     await waitFor(() =>
       expect(
-        screen.getByText('ちょっと魔法が乱れちゃったみたい…もう一度試してね🌸')
-      ).toBeInTheDocument()
+        screen.getByText('ちょっと魔法が乱れちゃったみたい…もう一度試してね🌸'),
+      ).toBeInTheDocument(),
     )
   })
 
   it('resets messages when reset button is clicked', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }))
+      vi.fn().mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 })),
     )
 
-    render(
-      <ChatPage
-        initialMessages={[{ id: '1', role: 'user', content: '消えるメッセージ' }]}
-      />
-    )
+    render(<ChatPage initialMessages={[{ id: '1', role: 'user', content: '消えるメッセージ' }]} />)
 
     expect(screen.getByText('消えるメッセージ')).toBeInTheDocument()
 
@@ -92,8 +85,6 @@ describe('ChatPage', () => {
       fireEvent.click(screen.getByText('🌸 リセット'))
     })
 
-    await waitFor(() =>
-      expect(screen.queryByText('消えるメッセージ')).not.toBeInTheDocument()
-    )
+    await waitFor(() => expect(screen.queryByText('消えるメッセージ')).not.toBeInTheDocument())
   })
 })

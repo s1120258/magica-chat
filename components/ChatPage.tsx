@@ -84,11 +84,21 @@ export function ChatPage({ initialMessages }: ChatPageProps) {
             className="w-9 h-9 rounded-full overflow-hidden border-2 flex-shrink-0"
             style={{ borderColor: 'var(--accent)' }}
           >
-            <Image src="/images/emma-icon.png" alt="エマ" width={36} height={36} className="object-cover" />
+            <Image
+              src="/images/emma-icon.png"
+              alt="エマ"
+              width={36}
+              height={36}
+              className="object-cover"
+            />
           </div>
           <div>
-            <p className="text-sm font-semibold leading-tight" style={{ color: 'var(--text)' }}>エマ</p>
-            <p className="text-xs" style={{ color: 'var(--subtext)' }}>魔法少女 ✨</p>
+            <p className="text-sm font-semibold leading-tight" style={{ color: 'var(--text)' }}>
+              エマ
+            </p>
+            <p className="text-xs" style={{ color: 'var(--subtext)' }}>
+              魔法少女 ✨
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -111,7 +121,11 @@ export function ChatPage({ initialMessages }: ChatPageProps) {
       </div>
 
       <div className="flex-1 flex flex-col min-h-0">
-        <MessageList messages={messages} streaming={streaming} streamingContent={streamingContent} />
+        <MessageList
+          messages={messages}
+          streaming={streaming}
+          streamingContent={streamingContent}
+        />
         <MessageInput onSend={handleSend} disabled={streaming} />
       </div>
 

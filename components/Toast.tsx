@@ -12,7 +12,11 @@ export function Toast({ message, visible }: ToastProps) {
     >
       <span
         className="block px-4 py-2 rounded-lg text-sm font-medium"
-        style={{ background: 'var(--user-bubble)', color: 'var(--text)', border: '1px solid var(--accent)' }}
+        style={{
+          background: 'var(--user-bubble)',
+          color: 'var(--text)',
+          border: '1px solid var(--accent)',
+        }}
       >
         {message}
       </span>

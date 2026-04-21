@@ -1,8 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+  prisma: PrismaClient | undefined
+}
 
 // Lazy initialization: PrismaClient is instantiated only on first access,
 // not at module load time. This prevents build failures when DATABASE_URL
@@ -13,15 +13,13 @@ function getPrismaClient(): PrismaClient {
   if (!globalForPrisma.prisma) {
     globalForPrisma.prisma = new PrismaClient({
       datasources: { db: { url: process.env.DATABASE_URL } },
-    });
+    })
   }
-  return globalForPrisma.prisma;
+  return globalForPrisma.prisma
 }
 
 export const db = new Proxy({} as PrismaClient, {
   get(_, prop) {
-    return (getPrismaClient() as unknown as Record<string | symbol, unknown>)[
-      prop
-    ];
+    return (getPrismaClient() as unknown as Record<string | symbol, unknown>)[prop]
   },
-});
+})

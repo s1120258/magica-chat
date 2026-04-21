@@ -30,17 +30,34 @@ export function MessageList({ messages, streaming, streamingContent }: MessageLi
           className={`flex gap-2 items-start ${msg.role === 'user' ? 'justify-end' : ''}`}
         >
           {msg.role === 'assistant' && (
-            <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border"
-              style={{ borderColor: 'var(--accent)' }}>
-              <Image src="/images/emma-icon.png" alt="エマ" width={24} height={24} className="object-cover" />
+            <div
+              className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border"
+              style={{ borderColor: 'var(--accent)' }}
+            >
+              <Image
+                src="/images/emma-icon.png"
+                alt="エマ"
+                width={24}
+                height={24}
+                className="object-cover"
+              />
             </div>
           )}
           <div
             className="max-w-[75%] rounded-2xl px-3 py-2 text-sm leading-relaxed"
             style={
               msg.role === 'assistant'
-                ? { background: 'var(--emma-bubble)', border: '1px solid var(--emma-border)', color: 'var(--text)', borderRadius: '0 12px 12px 12px' }
-                : { background: 'var(--user-bubble)', color: 'var(--text)', borderRadius: '12px 0 12px 12px' }
+                ? {
+                    background: 'var(--emma-bubble)',
+                    border: '1px solid var(--emma-border)',
+                    color: 'var(--text)',
+                    borderRadius: '0 12px 12px 12px',
+                  }
+                : {
+                    background: 'var(--user-bubble)',
+                    color: 'var(--text)',
+                    borderRadius: '12px 0 12px 12px',
+                  }
             }
           >
             {msg.content}
@@ -50,19 +67,38 @@ export function MessageList({ messages, streaming, streamingContent }: MessageLi
 
       {streaming && (
         <div className="flex gap-2 items-start">
-          <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border"
-            style={{ borderColor: 'var(--accent)' }}>
-            <Image src="/images/emma-icon.png" alt="エマ" width={24} height={24} className="object-cover" />
+          <div
+            className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 border"
+            style={{ borderColor: 'var(--accent)' }}
+          >
+            <Image
+              src="/images/emma-icon.png"
+              alt="エマ"
+              width={24}
+              height={24}
+              className="object-cover"
+            />
           </div>
           <div
             className="max-w-[75%] px-3 py-2 text-sm leading-relaxed"
-            style={{ background: 'var(--emma-bubble)', border: '1px solid var(--emma-border)', color: 'var(--text)', borderRadius: '0 12px 12px 12px' }}
+            style={{
+              background: 'var(--emma-bubble)',
+              border: '1px solid var(--emma-border)',
+              color: 'var(--text)',
+              borderRadius: '0 12px 12px 12px',
+            }}
           >
             {streamingContent || (
               <span data-testid="typing-indicator" className="flex gap-1">
-                <span className="animate-bounce" style={{ animationDelay: '0ms' }}>●</span>
-                <span className="animate-bounce" style={{ animationDelay: '150ms' }}>●</span>
-                <span className="animate-bounce" style={{ animationDelay: '300ms' }}>●</span>
+                <span className="animate-bounce" style={{ animationDelay: '0ms' }}>
+                  ●
+                </span>
+                <span className="animate-bounce" style={{ animationDelay: '150ms' }}>
+                  ●
+                </span>
+                <span className="animate-bounce" style={{ animationDelay: '300ms' }}>
+                  ●
+                </span>
               </span>
             )}
           </div>
