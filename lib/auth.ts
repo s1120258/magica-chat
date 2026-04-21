@@ -8,11 +8,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user?.email) {
-        const dbUser = await db.user.upsert({
-          where: { email: user.email },
-          update: { name: user.name ?? '', image: user.image ?? '' },
-          create: { email: user.email, name: user.name ?? '', image: user.image ?? '' },
-        })
+        // MongoDB Atlas M0 doesn't support transactions, so upsert() fails.
+        // Use findUnique + create/update as separate non-transactional operations.
+        const existing = await db.user.findUnique({ where: { email: user.email } })
+        const dbUser = existing
+          ? await db.user.update({
+              where: { email: user.email },
+              data: { name: user.name ?? '', image: user.image ?? '' },
+            })
+          : await db.user.create({
+              data: { email: user.email, name: user.name ?? '', image: user.image ?? '' },
+            })
         token.userId = dbUser.id
       }
       return token
