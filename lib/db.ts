@@ -11,7 +11,9 @@ const globalForPrisma = globalThis as unknown as {
 // the CLI tools and is not read by PrismaClient at runtime in Prisma v7.
 function getPrismaClient(): PrismaClient {
   if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = new PrismaClient();
+    globalForPrisma.prisma = new PrismaClient({
+      datasources: { db: { url: process.env.DATABASE_URL } },
+    });
   }
   return globalForPrisma.prisma;
 }
