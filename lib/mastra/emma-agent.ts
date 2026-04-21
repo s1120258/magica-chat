@@ -1,5 +1,5 @@
 import { Agent } from '@mastra/core/agent'
-import { openai } from '@ai-sdk/openai'
+import { openai } from '@ai-sdk/openai-v5'
 
 export const emmaAgent = new Agent({
   name: 'Emma',

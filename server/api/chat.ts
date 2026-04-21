@@ -25,7 +25,11 @@ chatRoutes.post('/', async (c) => {
   })
 
   const messages = [
-    ...history.map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+    ...history.map((m) =>
+      m.role === 'user'
+        ? { role: 'user' as const, content: m.content }
+        : { role: 'assistant' as const, content: m.content }
+    ),
     { role: 'user' as const, content: message },
   ]
 
