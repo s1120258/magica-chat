@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #12091e;
+  --hero: #2d1848;
+  --user-bubble: #3d2060;
+  --accent: #e879a0;
+  --text: #ffd6e8;
+  --subtext: #c9a0c0;
+  --emma-bubble: rgba(45, 24, 72, 0.27);
+  --emma-border: rgba(232, 121, 160, 0.13);
+  --input-bg: rgba(45, 24, 72, 0.27);
+  --input-border: rgba(232, 121, 160, 0.2);
+  --button-gradient: linear-gradient(135deg, #e879a0, #c040a0);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans, system-ui, sans-serif);
 }
