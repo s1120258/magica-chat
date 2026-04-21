@@ -1,5 +1,5 @@
-import { handlers } from '@/lib/auth'
+import { handlers } from "@/lib/auth";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
-export const { GET, POST } = handlers
+export const { GET, POST } = handlers;
