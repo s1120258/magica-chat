@@ -43,5 +43,3 @@ next-env.d.ts
 
 # superpowers brainstorming sessions
 .superpowers/
-
-/lib/generated/prisma
