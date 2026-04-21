@@ -8,7 +8,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate
-RUN npm run build
+# DATABASE_URL is only available at runtime (Secret Manager), so we pass a placeholder
+# for the build step to satisfy Prisma v7's constructor validation
+RUN DATABASE_URL="mongodb://build-placeholder:27017/placeholder" npm run build
 
 FROM node:20-slim AS runner
 WORKDIR /app
