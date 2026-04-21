@@ -6,19 +6,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
   session: { strategy: 'jwt' },
   callbacks: {
-    async signIn({ user }) {
-      if (!user.email) return false
-      await db.user.upsert({
-        where: { email: user.email },
-        update: { name: user.name ?? '', image: user.image ?? '' },
-        create: { email: user.email, name: user.name ?? '', image: user.image ?? '' },
-      })
-      return true
-    },
     async jwt({ token, user }) {
       if (user?.email) {
-        const dbUser = await db.user.findUnique({ where: { email: user.email } })
-        if (dbUser) token.userId = dbUser.id
+        const dbUser = await db.user.upsert({
+          where: { email: user.email },
+          update: { name: user.name ?? '', image: user.image ?? '' },
+          create: { email: user.email, name: user.name ?? '', image: user.image ?? '' },
+        })
+        token.userId = dbUser.id
       }
       return token
     },
