@@ -7,6 +7,8 @@ const globalForPrisma = globalThis as unknown as {
 // Lazy initialization: PrismaClient is instantiated only on first access,
 // not at module load time. This prevents build failures when DATABASE_URL
 // is unavailable during Next.js static analysis.
+// DATABASE_URL is passed explicitly because prisma.config.ts is only for
+// the CLI tools and is not read by PrismaClient at runtime in Prisma v7.
 function getPrismaClient(): PrismaClient {
   if (!globalForPrisma.prisma) {
     globalForPrisma.prisma = new PrismaClient();
